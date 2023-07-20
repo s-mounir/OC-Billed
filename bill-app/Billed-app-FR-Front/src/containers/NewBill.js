@@ -25,7 +25,10 @@ export default class NewBill {
     formData.append('file', file)
     formData.append('email', email)
 
-    this.store
+    const fileNameSplit = fileName.split('.')
+    const extension = fileNameSplit[fileNameSplit.length-1]
+    if(['jpg','jpeg','png'].includes(extension)){
+      this.store
       .bills()
       .create({
         data: formData,
@@ -39,6 +42,9 @@ export default class NewBill {
         this.fileUrl = fileUrl
         this.fileName = fileName
       }).catch(error => console.error(error))
+    }else{
+      window.alert("Le justificatif doit être au format : jpg, jpeg ou png.");
+    }
   }
   handleSubmit = e => {
     e.preventDefault()
@@ -57,6 +63,15 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
+    console.log(bill.date)
+    // const fileNameSplit = bill.fileName.split('.')
+    // const extension = fileNameSplit[fileNameSplit.length-1]
+    // if(['jpg','jpeg','png'].includes(extension)){
+    //   this.updateBill(bill)
+    //   this.onNavigate(ROUTES_PATH['Bills'])
+    // }else{
+    //   window.alert("Le justificatif doit être au format : jpg, jpeg ou png.");
+    // }
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
