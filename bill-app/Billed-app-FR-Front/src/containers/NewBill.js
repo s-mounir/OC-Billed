@@ -63,15 +63,6 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
-    console.log(bill.date)
-    // const fileNameSplit = bill.fileName.split('.')
-    // const extension = fileNameSplit[fileNameSplit.length-1]
-    // if(['jpg','jpeg','png'].includes(extension)){
-    //   this.updateBill(bill)
-    //   this.onNavigate(ROUTES_PATH['Bills'])
-    // }else{
-    //   window.alert("Le justificatif doit être au format : jpg, jpeg ou png.");
-    // }
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
