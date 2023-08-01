@@ -7,8 +7,9 @@ import '@testing-library/jest-dom'
 import {screen, waitFor} from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
+import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
+import Bills from "../containers/Bills.js"
 
 import router from "../app/Router.js";
 
@@ -36,6 +37,64 @@ describe("Given I am connected as an employee", () => {
       const antiChrono = (a, b) => ((a < b) ? 1 : -1)
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted)
+    })
+  })
+
+  describe("When I am on Bills Page, and I click on the NewBill button", () => {
+    test("Then the NewBill page should appear", () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+
+      const billsClasse = new Bills({
+        document, onNavigate, store: null, localStorage: window.localStorage
+      })
+      billsClasse.handleClickNewBill()
+      expect(screen.getAllByText("Envoyer une note de frais")).toBeTruthy();
+    })
+    test("Then mail icon in vertical layout should be highlighted", async () => {
+
+      const billsClasse = new Bills({
+        document, onNavigate, store: null, localStorage: window.localStorage
+      })
+      billsClasse.handleClickNewBill()
+      await waitFor(() => screen.getByTestId('icon-mail'))
+      const mailIcon = screen.getByTestId('icon-mail')
+      expect(mailIcon).toHaveClass('active-icon');
+    })
+  })
+  describe("When I am on Bills Page, and I click on the eye icon", () => {
+    test("Then the modal should appear", () => {
+      // const billsClasse = new Bills({
+      //   document, onNavigate, store: null, localStorage: window.localStorage
+      // })
+      // billsClasse.handleClickIconEye()
+    })
+    test("Then the image should appear", () => {
+      
+    })
+  })
+})
+
+
+// test d'integration GET
+describe("Given I am a user connected as Employee", () => {
+  describe("When I navigate to Bill page", () => {
+    test("fetches bills from mock API GET", () => {
+
+    })
+  })
+  describe("When an error occurs on API", () => {
+    test("fetches bills from an API and fails with 404 message error", () => {
+
+    })
+    test("fetches bills from an API and fails with 500 message error", () => {
+      
     })
   })
 })
