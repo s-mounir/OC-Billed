@@ -10,8 +10,10 @@ import { bills } from "../fixtures/bills.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import Bills from "../containers/Bills.js"
+import mockStore from "../__mocks__/store"
 
 import router from "../app/Router.js";
+import userEvent from '@testing-library/user-event';
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -51,32 +53,46 @@ describe("Given I am connected as an employee", () => {
         type: 'Employee'
       }))
 
-      const billsClasse = new Bills({
+      const billsContainer = new Bills({
         document, onNavigate, store: null, localStorage: window.localStorage
       })
-      billsClasse.handleClickNewBill()
+      billsContainer.handleClickNewBill()
       expect(screen.getAllByText("Envoyer une note de frais")).toBeTruthy();
     })
     test("Then mail icon in vertical layout should be highlighted", async () => {
 
-      const billsClasse = new Bills({
+      const billsContainer = new Bills({
         document, onNavigate, store: null, localStorage: window.localStorage
       })
-      billsClasse.handleClickNewBill()
+      billsContainer.handleClickNewBill()
       await waitFor(() => screen.getByTestId('icon-mail'))
       const mailIcon = screen.getByTestId('icon-mail')
       expect(mailIcon).toHaveClass('active-icon');
     })
   })
   describe("When I am on Bills Page, and I click on the eye icon", () => {
-    test("Then the modal should appear", () => {
-      // const billsClasse = new Bills({
-      //   document, onNavigate, store: null, localStorage: window.localStorage
-      // })
-      // billsClasse.handleClickIconEye()
-    })
-    test("Then the image should appear", () => {
-      
+    test("Then the modal should appear", async () => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+      document.body.innerHTML = BillsUI({ data: bills });
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      const store = null
+      const billsContainer = new Bills({
+        document, onNavigate, store, bills, localStorage: window.localStorage
+      })
+
+      const eye = screen.getAllByTestId('icon-eye')[0];
+      const handleClickIconEye = jest.fn(billsContainer.handleClickIconEye(eye))
+      eye.addEventListener('click', handleClickIconEye)
+      userEvent.click(eye)
+      expect(handleClickIconEye).toHaveBeenCalled()
+
+      const modale = document.querySelector('.modal')
+      expect(modale).toBeTruthy()
     })
   })
 })
@@ -90,11 +106,10 @@ describe("Given I am a user connected as Employee", () => {
     })
   })
   describe("When an error occurs on API", () => {
-    test("fetches bills from an API and fails with 404 message error", () => {
+    test("fetches bills from an API and fails with 404 message error", async () => {
 
     })
-    test("fetches bills from an API and fails with 500 message error", () => {
-      
+    test("fetches bills from an API and fails with 500 message error", async () => {
     })
   })
 })
