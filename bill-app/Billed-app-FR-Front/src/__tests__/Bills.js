@@ -99,10 +99,21 @@ describe("Given I am connected as an employee", () => {
 
 
 // test d'integration GET
+// test d'integration GET
 describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to Bill page", () => {
     test("fetches bills from mock API GET", () => {
-
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.append(root)
+      router()
+      window.onNavigate(ROUTES_PATH.Bills)
+      const listBills = document.querySelector('tbody').querySelectorAll('tr')
+      expect(listBills.length).toBeGreaterThan(0)
     })
   })
   describe("When an error occurs on API", () => {
