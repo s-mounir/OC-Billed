@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom'
 
-import { screen, waitFor } from "@testing-library/dom"
+import { screen, waitFor,  fireEvent } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import {localStorageMock} from "../__mocks__/localStorage.js";
@@ -37,17 +37,56 @@ describe("Given I am connected as an employee", () => {
   })
   describe("When I am on NewBill Page, and I change the file", () => {
     test("Then an error alert should appear if the format isn't jpg, jpeg or png", () => {
+      document.body.innerHTML = NewBillUI();
 
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
+      });
+
+      const alertMock = jest.spyOn(window,'alert').mockImplementation(); 
+
+      const handleChangeFile = jest.fn(() => newBill.handleChangeFile);
+      const attachedFile = screen.getByTestId('file');
+      attachedFile.addEventListener('change', handleChangeFile);
+      fireEvent.change(attachedFile, {
+        target: {
+          files: [new File(['file.pdf'], 'file.pdf', { type: 'text/txt' })],
+        },
+      });
+
+      expect(alertMock).toHaveBeenCalledTimes(1);
     })
-    test("Then a bill should be created if the format is jpg, jpeg or png", () => {
-      
+    test("Then the file handler should be run if the format is jpg, jpeg or png", () => {
+      document.body.innerHTML = NewBillUI();
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
+      });
+
+      const handleChangeFile = jest.fn(() => newBill.handleChangeFile);
+      const attachedFile = screen.getByTestId('file');
+      attachedFile.addEventListener('change', handleChangeFile);
+      fireEvent.change(attachedFile, {
+        target: {
+          files: [new File(['file.txt'], 'file.txt', { type: 'text/txt' })],
+        },
+      });
+
+      const numberOfFile = screen.getByTestId('file').files.length;
+      expect(numberOfFile).toEqual(1);
     })
   })
   describe("When I submit the form", () => {
     test("Then the bills page should appear", () => {
 
     })
-    test("Then I should navigate to the bills page", () => {
+    test("Then the new bill should be in the list", () => {
       
     })
   })
