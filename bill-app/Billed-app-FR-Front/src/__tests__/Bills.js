@@ -99,7 +99,6 @@ describe("Given I am connected as an employee", () => {
 
 
 // test d'integration GET
-// test d'integration GET
 describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to Bill page", () => {
     test("fetches bills from mock API GET", () => {
