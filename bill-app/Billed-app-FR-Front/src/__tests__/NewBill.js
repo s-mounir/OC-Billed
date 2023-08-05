@@ -32,6 +32,7 @@ describe("Given I am connected as an employee", () => {
       const html = NewBillUI()
       document.body.innerHTML = html
       //to-do write assertion
+      expect(screen.getByTestId('form-new-bill')).toBeTruthy();
     })
   })
   describe("When I am on NewBill Page, and I change the file", () => {
