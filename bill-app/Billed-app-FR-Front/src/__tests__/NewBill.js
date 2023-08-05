@@ -3,13 +3,15 @@
  */
 import '@testing-library/jest-dom'
 
-import { screen, waitFor,  fireEvent } from "@testing-library/dom"
+import { screen, waitFor, fireEvent } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import {localStorageMock} from "../__mocks__/localStorage.js";
 
 import { ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
+
+import userEvent from '@testing-library/user-event';
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -84,10 +86,24 @@ describe("Given I am connected as an employee", () => {
   })
   describe("When I submit the form", () => {
     test("Then the bills page should appear", () => {
+      document.body.innerHTML = NewBillUI();
 
-    })
-    test("Then the new bill should be in the list", () => {
-      
+      const newBillContainer = new NewBill({
+        document,
+        onNavigate,
+        store: null,
+        localStorage: window.localStorage,
+      });
+
+      const handleSubmit = jest.fn((e) => newBillContainer.handleSubmit(e));
+      newBillContainer.fileName = 'image.jpg';
+
+      const newBillForm = screen.getByTestId('form-new-bill');
+      newBillForm.addEventListener('submit', handleSubmit);
+      fireEvent.submit(newBillForm);
+
+      expect(handleSubmit).toHaveBeenCalled();
+      //expect(screen.getAllByText('Mes notes de frais')).toBeTruthy();
     })
   })
 })
