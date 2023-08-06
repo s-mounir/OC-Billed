@@ -5,6 +5,7 @@ import '@testing-library/jest-dom'
 
 import { screen, waitFor, fireEvent } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
+import BillsUI from "../views/BillsUI.js"
 import NewBill from "../containers/NewBill.js"
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store"
@@ -117,8 +118,6 @@ describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to New Bill page", () => {
     test("post new bill to mock API", async () => {
       // spy
-      // Cannot spy the post property because it is not a function
-      // undefined given instead
       const postSpy = jest.spyOn(mockStore, 'bills');
 
       // new bill to submit
@@ -140,19 +139,52 @@ describe("Given I am a user connected as Employee", () => {
       };
 
       // get bills and the new bill
-      //const bills = await mockStore.create(newBill);
-
+      const bills = await mockStore.bills().create(newBill);
       // expected results
-      //expect(postSpy).toHaveBeenCalledTimes(1);
-      //expect(bills).toBe('fake new bill received');
+      expect(postSpy).toHaveBeenCalledTimes(1);
+      expect(bills.key).toBe('1234');
     })
   })
   describe("When an error occurs on API", () => {
+    beforeEach(() => {
+      jest.spyOn(mockStore, "bills")
+      Object.defineProperty(
+          window,
+          'localStorage',
+          { value: localStorageMock }
+      )
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee',
+        email: "a@a"
+      }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.appendChild(root)
+      router()
+    })
     test("post new bill from mock API and fails with 404 message error", () => {
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          create : (bill) =>  {
+            return Promise.reject(new Error("Erreur 404"))
+          }
+        }})
 
+      document.body.innerHTML = BillsUI({ error: 'Erreur 404' });
+      const message = screen.getByText(/Erreur 404/);
+      expect(message).toBeTruthy();
     })
     test("post new bill from mock API and fails with 500 message error", () => {
-      
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          create : (bill) =>  {
+            return Promise.reject(new Error("Erreur 500"))
+          }
+        }})
+
+      document.body.innerHTML = BillsUI({ error: 'Erreur 500' });
+      const message = screen.getByText(/Erreur 500/);
+      expect(message).toBeTruthy();
     })
   })
 })
