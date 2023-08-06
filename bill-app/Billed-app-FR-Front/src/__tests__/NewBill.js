@@ -7,11 +7,10 @@ import { screen, waitFor, fireEvent } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import {localStorageMock} from "../__mocks__/localStorage.js";
+import mockStore from "../__mocks__/store"
 
-import { ROUTES_PATH } from "../constants/routes.js";
+import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
-
-import userEvent from '@testing-library/user-event';
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -86,6 +85,10 @@ describe("Given I am connected as an employee", () => {
   })
   describe("When I submit the form", () => {
     test("Then the bills page should appear", () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      
       document.body.innerHTML = NewBillUI();
 
       const newBillContainer = new NewBill({
@@ -96,6 +99,7 @@ describe("Given I am connected as an employee", () => {
       });
 
       const handleSubmit = jest.fn((e) => newBillContainer.handleSubmit(e));
+      
       newBillContainer.fileName = 'image.jpg';
 
       const newBillForm = screen.getByTestId('form-new-bill');
@@ -103,7 +107,7 @@ describe("Given I am connected as an employee", () => {
       fireEvent.submit(newBillForm);
 
       expect(handleSubmit).toHaveBeenCalled();
-      //expect(screen.getAllByText('Mes notes de frais')).toBeTruthy();
+      expect(screen.getAllByText('Mes notes de frais')).toBeTruthy();
     })
   })
 })
@@ -111,8 +115,36 @@ describe("Given I am connected as an employee", () => {
 // test d'integration POST
 describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to New Bill page", () => {
-    test("post new bill from mock API", () => {
+    test("post new bill to mock API", async () => {
+      // spy
+      // Cannot spy the post property because it is not a function
+      // undefined given instead
+      const postSpy = jest.spyOn(mockStore, 'bills');
 
+      // new bill to submit
+      const newBill = {
+        id: '47qAXb6fIm2zOKkLzMro',
+        vat: '80',
+        fileUrl:
+          'https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a',
+        status: 'pending',
+        type: 'Hôtel et logement',
+        commentary: 'séminaire billed',
+        name: 'fake new bill',
+        fileName: 'preview-facture-free-201801-pdf-1.jpg',
+        date: '2004-04-04',
+        amount: 400,
+        commentAdmin: 'ok',
+        email: 'a@a',
+        pct: 20,
+      };
+
+      // get bills and the new bill
+      //const bills = await mockStore.create(newBill);
+
+      // expected results
+      //expect(postSpy).toHaveBeenCalledTimes(1);
+      //expect(bills).toBe('fake new bill received');
     })
   })
   describe("When an error occurs on API", () => {
