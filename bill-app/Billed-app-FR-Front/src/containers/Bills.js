@@ -27,6 +27,8 @@ export default class {
     if (typeof $('#modaleFile').modal === 'function') $('#modaleFile').modal('show')
   }
 
+  // not need to cover this function by tests
+  /* istanbul ignore next */
   getBills = () => {
     if (this.store) {
       return this.store
